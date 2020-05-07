@@ -31,20 +31,21 @@ class BooksApp extends Component {
     };
 
     moveBook = (book, shelf) => {
-        BooksAPI.update(book, shelf).catch(err => {
+        BooksAPI.update(book, shelf).then(() => {
+            if (shelf === 'none') {
+                this.setState(prevState => ({
+                    myBooks: prevState.myBooks.filter(b => b.id !== book.id)
+                }));
+            } else {
+                book.shelf = shelf;
+                this.setState(prevState => ({
+                    myBooks: prevState.myBooks.filter(b => b.id !== book.id).concat(book)
+                }));
+            }
+        }).catch(err => {
             console.log(err);
             this.setState({ error: true });
         });
-        if (shelf === 'none') {
-            this.setState(prevState => ({
-                myBooks: prevState.myBooks.filter(b => b.id !== book.id)
-            }));
-        } else {
-            book.shelf = shelf;
-            this.setState(prevState => ({
-                myBooks: prevState.myBooks.filter(b => b.id !== book.id).concat(book)
-            }));
-        }
     };
 
     searchForBooks = debounce(300, false, query => {
