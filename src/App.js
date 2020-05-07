@@ -23,15 +23,15 @@ class BooksApp extends Component {
     };
 
     moveBook = (book, shelf) => {
-        BooksAPI.update(book, shelf).then(books => {
-            console.log(books);
-        });
-        const updatedBooks = this.state.books.map(b => {
-            if (b.id === book.id) {
-                b.shelf = shelf;
-            }
-            return b;
-        });
+        BooksAPI.update(book, shelf);
+
+        let updatedBooks = [];
+        updatedBooks = this.state.books.filter(b => b.id !== book.id);
+
+        if (shelf !== 'none') {
+            book.shelf = shelf;
+            updatedBooks = updatedBooks.concat(book);
+        }
 
         this.setState({
             books: updatedBooks,
@@ -77,7 +77,8 @@ class BooksApp extends Component {
                     path="/search"
                     render={() => (
                         <SearchBooks
-                            books={books}
+                            searchBooks={searchBooks}
+                            Books={books}
                             onSearch={this.searchForBooks}
                             onMove={this.moveBook}
                             onResetSearch={this.resetSearch}
@@ -199,11 +200,22 @@ class BookshelfChanger extends Component {
 
 class SearchBooks extends Component {
     render() {
-        const { books, onSearch, onResetSearch } = this.props;
+        const {
+            searchBooks,
+            books,
+            onSearch,
+            onResetSearch,
+            onMove,
+        } = this.props;
+
         return (
             <div className="search-books">
                 <SearchBar onSearch={onSearch} onResetSearch={onResetSearch} />
-                <SearchResults books={books} />
+                <SearchResults
+                    searchBooks={searchBooks}
+                    books={books}
+                    onMove={onMove}
+                />
             </div>
         );
     }
@@ -258,12 +270,26 @@ class SearchBooksInput extends Component {
 }
 
 const SearchResults = props => {
-    const { books } = props;
+    const { searchBooks, books, onMove } = props;
+    const updatedBooks = searchBooks.map(book => {
+        books.map(b => {
+            if (b.id === book.id) {
+                book.shelf = b.shelf;
+            }
+            return b;
+        });
+        return book;
+    });
     return (
         <div className="search-books-results">
             <ol className="books-grid">
-                {books.map(book => (
-                    <Book key={book.id} book={book} shelf="none" />
+                {updatedBooks.map(book => (
+                    <Book
+                        key={book.id}
+                        book={book}
+                        shelf={book.shelf ? book.shelf : 'none'}
+                        onMove={onMove}
+                    />
                 ))}
             </ol>
         </div>
