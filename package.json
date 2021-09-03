@@ -15,7 +15,7 @@
     "throttle-debounce": "^2.1.0",
     "object-path": "^0.11.5",
     "node-notifier": "^8.0.1",
-    "immer": "^8.0.1"
+    "immer": "^9.0.6"
   },
   "scripts": {
     "start": "react-scripts start",
